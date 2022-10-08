@@ -8,23 +8,33 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import {
   useGetPokemonByNameQuery,
   useAdaDataMutation,
+  useUpdatedataMutation,
   useGetDataMutation,
 } from "./src/pokemon";
 export default function Index() {
   const [name, setName] = useState("");
-  const [ini, setIniti] = useState();
+  const [ini, setIniti] = useState(0);
+  const [id, setid] = useState();
+
   const names = {
     attendence: name,
   };
 
-  const { data, isLoading, error } = useGetPokemonByNameQuery<any>("bulbasaur");
+  const info = {
+    ides: id,
+    Attendence: name,
+  };
+
   const [getData, { data: get, isLoading: getLoading, error: getError }] =
     useGetDataMutation();
   const [adaData, { data: adData, isLoading: adLoading, error: adError }] =
     useAdaDataMutation();
+  const [updatedata, { data: updat, isLoading: upLoading, error: upError }] =
+    useUpdatedataMutation();
 
   React.useEffect(() => {
     getData({});
@@ -33,12 +43,18 @@ export default function Index() {
   const addata = () => {
     adaData(names);
   };
+  const update = () => {
+    updatedata(info);
+    setIniti(0);
+  };
 
-  const handleDelete = (Index: any) => {
-    setName(Index);
-    setIniti(Index);
+  const handleDelete = (Index: any, atend: any) => {
+    setid(Index);
+    setName(atend);
+    setIniti(1);
     console.log(Index);
   };
+  console.log(info);
 
   return (
     <View style={styles.container}>
@@ -73,9 +89,11 @@ export default function Index() {
             justifyContent: "center",
             alignItems: "center",
           }}
-          onPress={() => addata()}
+          onPress={() => {
+            ini == 0 ? addata() : update();
+          }}
         >
-          <Text>Add</Text>
+          <Text>{ini ? "Update" : "Add"}</Text>
         </TouchableOpacity>
       </View>
       <View style={{ backgroundColor: "teal", flex: 1, width: "100%" }}>
@@ -88,70 +106,71 @@ export default function Index() {
             data={get}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleDelete(item._id)}>
-                <View
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                }}
+              >
+                <Text
                   style={{
-                    flexDirection: "row",
+                    borderWidth: 1,
+                    height: 50,
+                    width: "100%",
                   }}
                 >
-                  <Text
-                    style={{
-                      borderWidth: 1,
-                      height: 50,
-                      width: "100%",
-                    }}
-                  >
-                    {item.attendence}
-
-                    {ini ? (
-                      <View
-                        style={{
-                          justifyContent: "center",
-                          alignItems: "center",
-                          backgroundColor: "white",
-                          height: 40,
-                          width: 40,
-                          borderRadius: 20,
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name="delete-restore"
-                          size={24}
-                          color="seegreen"
-                        />
-                      </View>
-                    ) : null}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+                  {item.attendence}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleDelete(item._id, item.attendence)}
+                >
+                  {ini ? (
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "white",
+                        position: "absolute",
+                        top: 3,
+                        right: 0,
+                        height: 40,
+                        width: 40,
+                        borderRadius: 20,
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="delete-restore"
+                        size={24}
+                        color="seegreen"
+                      />
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        backgroundColor: "white",
+                        position: "absolute",
+                        top: 3,
+                        right: 0,
+                        height: 40,
+                        width: 40,
+                        borderRadius: 20,
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="select"
+                        size={24}
+                        color="black"
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
             )}
           />
         ) : null}
       </View>
-      {/* <View
-        style={{
-          marginTop: 30,
-          backgroundColor: "teal",
-          height: "100%",
-          width: "100%",
-        }}
-      >
-        {getError ? (
-          <Text>There was an error</Text>
-        ) : getLoading ? (
-          <Text>Loading...</Text>
-        ) : get ? (
-          <FlatList
-            data={get}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <Text style={{ borderWidth: 1, height: 50 }}>
-                {item.attendence}
-              </Text>
-            )}
-          />
-        ) : null}
-      </View> */}
     </View>
   );
 }

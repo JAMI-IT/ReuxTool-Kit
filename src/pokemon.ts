@@ -6,6 +6,9 @@ export const pokemonApi = createApi({
   reducerPath: "pokemonApi",
   //   baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
   baseQuery: fetchBaseQuery({ baseUrl: "http://192.168.1.13:8000/User" }),
+  // baseQuery: fetchBaseQuery({
+  //   baseUrl: "https://color-palette-api.kadikraman.now.sh/",
+  // }),
 
   endpoints: (builder) => ({
     getPokemonByName: builder.query({
@@ -13,7 +16,7 @@ export const pokemonApi = createApi({
     }),
     getData: builder.mutation({
       query: () => ({
-        url: "/all",
+        url: "/User",
         method: "GET",
       }),
     }),
@@ -22,6 +25,13 @@ export const pokemonApi = createApi({
         url: "/add",
         method: "POST",
         body: value,
+      }),
+    }),
+    updatedata: builder.mutation({
+      query: (id, ...rest) => ({
+        url: "/put",
+        method: "update",
+        body: rest,
       }),
     }),
   }),
@@ -33,4 +43,5 @@ export const {
   useGetPokemonByNameQuery,
   useGetDataMutation,
   useAdaDataMutation,
+  useUpdatedataMutation,
 } = pokemonApi;
