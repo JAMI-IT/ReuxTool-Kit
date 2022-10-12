@@ -10,24 +10,25 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import {
-  useGetPokemonByNameQuery,
   useAdaDataMutation,
   useUpdatedataMutation,
+  useDeleteDataMutation,
   useGetDataMutation,
 } from "./src/pokemon";
 export default function Index() {
   const [name, setName] = useState("");
-  const [ini, setIniti] = useState(0);
-  const [id, setid] = useState();
+  const [ini, setIniti] = useState(true);
+  const [id, setid] = useState("");
+  const [attendence, setattendence] = useState("");
 
   const names = {
     attendence: name,
   };
 
-  const info = {
-    ides: id,
-    Attendence: name,
-  };
+  const [
+    deleteData,
+    { data: deldata, isLoading: delLoading, error: delerror },
+  ] = useDeleteDataMutation();
 
   const [getData, { data: get, isLoading: getLoading, error: getError }] =
     useGetDataMutation();
@@ -38,36 +39,53 @@ export default function Index() {
 
   React.useEffect(() => {
     getData({});
-  }, [adData]);
+  }, [adData, updat, deldata]);
 
-  const addata = () => {
+  const handleaddata = useCallback(() => {
     adaData(names);
-  };
-  const update = () => {
-    updatedata(info);
-    setIniti(0);
-  };
+    setName("");
+  }, [name]);
 
-  const handleDelete = (Index: any, atend: any) => {
-    setid(Index);
-    setName(atend);
-    setIniti(1);
-    console.log(Index);
-  };
-  console.log(info);
+  const handleupdate = useCallback(() => {
+    setattendence(name);
+    updatedata({ id, attendence });
+    setIniti(true);
+    setName("");
+  }, [name, attendence, ini]);
+
+  const handleDelete = useCallback(
+    (index: string, atend: string) => {
+      deleteData({ index });
+      setName(atend);
+      setIniti(true);
+      console.log("Index :", index);
+    },
+    [name, ini]
+  );
+  const handelset = useCallback(
+    (index: any, attendence: any) => {
+      setName(attendence);
+      setid(index);
+      setIniti(false);
+    },
+    [attendence, id, ini]
+  );
+  console.log("Index:", id, "Atttendence :", attendence);
+  console.log("...........");
 
   return (
     <View style={styles.container}>
       <View
         style={{
-          marginTop: 40,
+          marginTop: 20,
           height: 100,
           width: "100%",
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "orange",
+          backgroundColor: "skyblue",
         }}
       >
+        <Text>Enter THe Attendence</Text>
         <TextInput
           style={{
             width: "80%",
@@ -79,24 +97,44 @@ export default function Index() {
           value={name}
           onChangeText={setName}
         />
-        <TouchableOpacity
-          style={{
-            backgroundColor: "skyblue",
-            marginTop: 20,
-            width: 60,
-            height: 30,
-            borderRadius: 10,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          onPress={() => {
-            ini == 0 ? addata() : update();
-          }}
-        >
-          <Text>{ini ? "Update" : "Add"}</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "lightblue",
+              marginTop: 10,
+              width: 60,
+              height: 30,
+              borderRadius: 10,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => {
+              ini == true ? handleaddata() : handleupdate();
+            }}
+          >
+            <Text>{ini == false ? "Update" : "Add"}</Text>
+          </TouchableOpacity>
+          {ini == false ? (
+            <TouchableOpacity
+              style={{
+                backgroundColor: "lightblue",
+                marginTop: 10,
+                width: 60,
+                height: 30,
+                borderRadius: 10,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                setIniti(true);
+              }}
+            >
+              <Text>canccel</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
-      <View style={{ backgroundColor: "teal", flex: 1, width: "100%" }}>
+      <View style={{ backgroundColor: "aqua", flex: 1, width: "100%" }}>
         {getError ? (
           <Text>There was an error</Text>
         ) : getLoading ? (
@@ -122,9 +160,13 @@ export default function Index() {
                   {item.attendence}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => handleDelete(item._id, item.attendence)}
+                  onPress={
+                    ini == false
+                      ? () => handleDelete(item._id, item.attendence)
+                      : () => handelset(item._id, item.attendence)
+                  }
                 >
-                  {ini ? (
+                  {ini == false ? (
                     <View
                       style={{
                         justifyContent: "center",
