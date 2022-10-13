@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const pokemonApi = createApi({
   reducerPath: "pokemonApi",
   //   baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
-  baseQuery: fetchBaseQuery({ baseUrl: "http://192.168.1.15:8000/User" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "http://192.168.1.10:8000/User" }),
   // baseQuery: fetchBaseQuery({
   //   baseUrl: "https://color-palette-api.kadikraman.now.sh/",
   // }),
@@ -39,12 +39,12 @@ export const pokemonApi = createApi({
       ),
     }),
     deleteData: builder.mutation({
-      query: (id) => (
-        console.log("De.......dfdhjshj.........."),
+      query: (data) => (
+        console.log("De.", data),
         {
           url: "/delete",
           method: "DELETE",
-          body:id,
+          body: data,
         }
       ),
     }),

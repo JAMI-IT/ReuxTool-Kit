@@ -25,6 +25,16 @@ export default function Index() {
     attendence: name,
   };
 
+  const updates = useCallback(
+    (index: any, namee: any) => {
+      setName(namee);
+      setid(index);
+      setattendence(name);
+      console.log("id:", index);
+    },
+    [name, id, attendence]
+  );
+
   const [
     deleteData,
     { data: deldata, isLoading: delLoading, error: delerror },
@@ -39,7 +49,7 @@ export default function Index() {
 
   React.useEffect(() => {
     getData({});
-  }, [adData, updat, deldata]);
+  }, [deldata, adData, updat]);
 
   const handleaddata = useCallback(() => {
     adaData(names);
@@ -47,31 +57,10 @@ export default function Index() {
   }, [name]);
 
   const handleupdate = useCallback(() => {
-    setattendence(name);
-    updatedata({ id, attendence });
     setIniti(true);
-    setName("");
+    updatedata({ id, attendence });
+    console.log("update", id, attendence);
   }, [name, attendence, ini]);
-
-  const handleDelete = useCallback(
-    (index: string, atend: string) => {
-      deleteData({ index });
-      setName(atend);
-      setIniti(true);
-      console.log("Index :", index);
-    },
-    [name, ini]
-  );
-  const handelset = useCallback(
-    (index: any, attendence: any) => {
-      setName(attendence);
-      setid(index);
-      setIniti(false);
-    },
-    [attendence, id, ini]
-  );
-  console.log("Index:", id, "Atttendence :", attendence);
-  console.log("...........");
 
   return (
     <View style={styles.container}>
@@ -85,7 +74,9 @@ export default function Index() {
           backgroundColor: "skyblue",
         }}
       >
-        <Text>Enter THe Attendence</Text>
+        <Text style={{ color: "red", alignSelf: "flex-start", marginLeft: 35 }}>
+          Enter THe Attendence
+        </Text>
         <TextInput
           style={{
             width: "80%",
@@ -162,8 +153,17 @@ export default function Index() {
                 <TouchableOpacity
                   onPress={
                     ini == false
-                      ? () => handleDelete(item._id, item.attendence)
-                      : () => handelset(item._id, item.attendence)
+                      ? () => {
+                          deleteData({ id });
+                          setIniti(true);
+                          getData({});
+                        }
+                      : () => {
+                          updates(item._id, item.attendence);
+                          setIniti(false);
+
+                          // handelset(item._id, item.attendence);
+                        }
                   }
                 >
                   {ini == false ? (
