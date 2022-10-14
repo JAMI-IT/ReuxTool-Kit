@@ -5,21 +5,23 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const pokemonApi = createApi({
   reducerPath: "pokemonApi",
   //   baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2/" }),
-  baseQuery: fetchBaseQuery({ baseUrl: "http://192.168.1.10:8000/User" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "http://192.168.1.12:8000/User" }),
   // baseQuery: fetchBaseQuery({
   //   baseUrl: "https://color-palette-api.kadikraman.now.sh/",
   // }),
   tagTypes: ["Posts"],
+  keepUnusedDataFor: 30,
 
   endpoints: (builder) => ({
     getPokemonByName: builder.query({
       query: (name) => `pokemon/${name}`,
     }),
-    getData: builder.mutation({
+    getData: builder.query({
       query: () => ({
         url: "/all",
         method: "GET",
       }),
+      providesTags: ["Posts"],
     }),
     adaData: builder.mutation({
       query: (value) => ({
@@ -27,26 +29,23 @@ export const pokemonApi = createApi({
         method: "POST",
         body: value,
       }),
+      invalidatesTags: ["Posts"],
     }),
     updatedata: builder.mutation({
-      query: (data) => (
-        console.log("value", data),
-        {
-          url: "/update",
-          method: "PUT",
-          body: data,
-        }
-      ),
+      query: (data) => ({
+        url: "/update",
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Posts"],
     }),
     deleteData: builder.mutation({
-      query: (data) => (
-        console.log("De.", data),
-        {
-          url: "/delete",
-          method: "DELETE",
-          body: data,
-        }
-      ),
+      query: (data) => ({
+        url: "/delete",
+        method: "DELETE",
+        body: data,
+      }),
+      invalidatesTags: ["Posts"],
     }),
   }),
 });
@@ -54,8 +53,8 @@ export const pokemonApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-  useGetPokemonByNameQuery,
-  useGetDataMutation,
+  // useGetPokemonByNameQuery,
+  useGetDataQuery,
   useAdaDataMutation,
   useUpdatedataMutation,
   useDeleteDataMutation,

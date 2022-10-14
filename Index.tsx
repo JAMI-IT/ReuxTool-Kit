@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Text,
   View,
@@ -13,7 +13,7 @@ import {
   useAdaDataMutation,
   useUpdatedataMutation,
   useDeleteDataMutation,
-  useGetDataMutation,
+  useGetDataQuery,
 } from "./src/pokemon";
 export default function Index() {
   const [name, setName] = useState("");
@@ -24,43 +24,42 @@ export default function Index() {
   const names = {
     attendence: name,
   };
+  const user = {
+    ids: id,
+    attendences: name,
+  };
 
   const updates = useCallback(
     (index: any, namee: any) => {
       setName(namee);
       setid(index);
       setattendence(name);
-      console.log("id:", index);
     },
     [name, id, attendence]
   );
 
-  const [
-    deleteData,
-    { data: deldata, isLoading: delLoading, error: delerror },
-  ] = useDeleteDataMutation();
+  const { data, isLoading, error, isFetching, refetch } =
+    useGetDataQuery("data");
 
-  const [getData, { data: get, isLoading: getLoading, error: getError }] =
-    useGetDataMutation();
-  const [adaData, { data: adData, isLoading: adLoading, error: adError }] =
-    useAdaDataMutation();
-  const [updatedata, { data: updat, isLoading: upLoading, error: upError }] =
-    useUpdatedataMutation();
-
-  React.useEffect(() => {
-    getData({});
-  }, [deldata, adData, updat]);
+  const [deleteData] = useDeleteDataMutation();
+  const [adaData] = useAdaDataMutation();
+  const [updatedata] = useUpdatedataMutation();
 
   const handleaddata = useCallback(() => {
     adaData(names);
     setName("");
   }, [name]);
 
-  const handleupdate = useCallback(() => {
-    setIniti(true);
-    updatedata({ id, attendence });
-    console.log("update", id, attendence);
-  }, [name, attendence, ini]);
+  const handleupdate = useCallback(
+    (user: any) => {
+      setIniti(true);
+      console.log("user ----:", user);
+
+      updatedata(user);
+      console.log("update", id, attendence);
+    },
+    [name, attendence, ini]
+  );
 
   return (
     <View style={styles.container}>
@@ -100,7 +99,7 @@ export default function Index() {
               alignItems: "center",
             }}
             onPress={() => {
-              ini == true ? handleaddata() : handleupdate();
+              ini == true ? handleaddata() : handleupdate(user);
             }}
           >
             <Text>{ini == false ? "Update" : "Add"}</Text>
@@ -126,13 +125,13 @@ export default function Index() {
         </View>
       </View>
       <View style={{ backgroundColor: "aqua", flex: 1, width: "100%" }}>
-        {getError ? (
+        {error ? (
           <Text>There was an error</Text>
-        ) : getLoading ? (
+        ) : isLoading ? (
           <Text>Loading...</Text>
-        ) : get ? (
+        ) : data ? (
           <FlatList
-            data={get}
+            data={data}
             keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <View
@@ -156,13 +155,11 @@ export default function Index() {
                       ? () => {
                           deleteData({ id });
                           setIniti(true);
-                          getData({});
+                          refetch();
                         }
                       : () => {
                           updates(item._id, item.attendence);
                           setIniti(false);
-
-                          // handelset(item._id, item.attendence);
                         }
                   }
                 >
